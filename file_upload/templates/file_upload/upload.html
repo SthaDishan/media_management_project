@@ -1,13 +1,32 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>File Upload</title>
+    <title>File Management System</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <script
       src="https://code.jquery.com/jquery-3.7.1.min.js"
       integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
       crossorigin="anonymous"
     ></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+      integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+      crossorigin="anonymous"
+    ></script>
+
     <link
       rel="stylesheet"
       href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css"
@@ -118,6 +137,15 @@
         align-items: center;
         gap: 10px;
       }
+      .file-input-container input {
+        flex: 2;
+      }
+      .file-input-container span {
+        flex: 1;
+      }
+      .file-input-container button {
+        flex: 1;
+      }
       .remove-file-btn {
         background-color: #dc3545;
         color: white;
@@ -126,14 +154,7 @@
         border-radius: 4px;
         cursor: pointer;
       }
-      .add-file-btn {
-        background-color: rgb(145, 220, 53);
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-      }
+
       .file-inputs-wrapper {
         margin-bottom: 15px;
       }
@@ -145,6 +166,10 @@
       .file-counter {
         margin-bottom: 10px;
         color: #666;
+      }
+      .row-justify-end {
+        display: flex;
+        justify-content: flex-end;
       }
     </style>
   </head>
@@ -158,35 +183,54 @@
     {% endfor %} {% endif %}
 
     <div class="upload-form">
-      <form method="post" enctype="multipart/form-data" id="uploadForm">
+      <form
+        method="post"
+        enctype="multipart/form-data"
+        action="{% url 'upload_file' %}"
+        id="uploadForm"
+      >
         {% csrf_token %}
         <div class="file-counter">
           Files selected: <span id="fileCount">0</span>/10
         </div>
         <div id="fileInputsContainer" class="file-inputs-wrapper"></div>
-        <a class="add-file-btn" onclick="addNewFileInput()">Add File</a>
-        <button type="submit" class="upload-btn" id="submitBtn" disabled>
-          Upload Files
-        </button>
+        <div class="row-justify-end">
+          <a
+            class="add-file-btn btn btn-primary text-white mb-4"
+            onclick="addNewFileInput()"
+            >Add File</a
+          >
+        </div>
+        <p class="text-muted">
+          Supported formats: .mp3, .mp4, .jpeg, .png, .gif
+        </p>
+        <p class="text-muted">File size: 100KB - 10MB</p>
+        <div class="row-justify-end">
+          <button type="submit" class="upload-btn" id="submitBtn" disabled>
+            Upload Files
+          </button>
+        </div>
       </form>
-      <p>Supported formats: .mp3, .mp4, .jpeg, .png, .gif</p>
-      <p>File size: 100KB - 10MB</p>
     </div>
 
     <div class="file-list">
       <h2>Uploaded Files</h2>
       <table id="filesTable" class="display" style="width: 100%">
-        <a class="btn btn-sm btn-danger delete_all_btn d-none" onclick="confirmDeleteAll()">Delete All</a>        
+        <a
+          class="btn btn-sm btn-danger delete_all_btn d-none"
+          onclick="confirmDeleteAll()"
+          >Delete All</a
+        >
         <script>
           function confirmDeleteAll() {
             Swal.fire({
-              title: 'Are you sure?',
+              title: "Are you sure?",
               text: "Do you want to delete all files?",
-              icon: 'warning',
+              icon: "warning",
               showCancelButton: true,
-              confirmButtonColor: '#3085d6',
-              cancelButtonColor: '#d33',
-              confirmButtonText: 'Yes, delete all!'
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Yes, delete all!",
             }).then((result) => {
               if (result.isConfirmed) {
                 // Redirect to the delete-all URL if confirmed
@@ -201,7 +245,7 @@
               <input
                 type="checkbox"
                 name="select_all_file"
-                class="select_all_file"
+                class="select_all_file form-check-input"
               />
             </th>
             <th>File name</th>
@@ -225,7 +269,7 @@
                     ><input
                       type="checkbox"
                       name="select_file"
-                      class="select_file"
+                      class="select_file form-check-input"
                   /></span>
                 </td>
                 <td><span class="file-date">{{ file.name }}</span></td>
@@ -241,22 +285,40 @@
                 </td>
                 <td>
                   <div class="file-actions">
-                    <a href="{{ file.file.url }}" 
-                       class="download-btn" 
-                       onclick="confirmDownload(event, '{{ file.file.url }}', '{{ file.name }}')"
-                    >Download</a>
                     <form
                       method="post"
                       action="{% url 'delete_file' file.id %}"
-                      style="display: inline"
+                      class="btn-group"
+                      style="
+                        display: flex;
+                        justify-content: center;
+                        flex-direction: row;
+                        flex-wrap: no-wrap;
+                      "
                     >
+                      <a
+                        class="btn btn-success filePreviewToggler"
+                        onclick="filePreviewToggler('{{ file.file.url }}','{{ file.file_type }}','{{ file.name }}')"
+                        data-bs-toggle="modal"
+                        data-bs-target="#filePreviewModal"
+                        href="{{ file.file.url }}"
+                      >
+                        <i class="fa-solid fa-eye"></i>
+                      </a>
+                      <a
+                        href="{{ file.file.url }}"
+                        class="download-btn btn"
+                        onclick="confirmDownload(event, '{{ file.file.url }}', '{{ file.name }}')"
+                      >
+                        <i class="fa-solid fa-download"></i>
+                      </a>
                       {% csrf_token %}
                       <button
                         type="submit"
-                        class="delete-btn"
+                        class="delete-btn btn"
                         onclick="return confirm('Are you sure you want to delete this file?')"
                       >
-                        Delete
+                        <i class="fa-solid fa-trash"></i>
                       </button>
                     </form>
                   </div>
@@ -274,42 +336,79 @@
       </table>
     </div>
 
+    {% comment %} File viewer {% endcomment %}
+
+    <div
+      class="modal fade"
+      id="filePreviewModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="filePreviewModalTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <span id="modal_title">My Modal Title</span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-stop-media"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body file-content"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary btn-stop-media"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       let fileCount = 0;
       const maxFiles = 10;
       function confirmDownload(event, fileUrl, fileName) {
         event.preventDefault();
-        
+
         Swal.fire({
-            title: 'Download File',
-            text: `Do you want to download ${fileName}?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#007bff',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, download!',
-            cancelButtonText: 'Cancel'
+          title: "Download File",
+          text: `Do you want to download ${fileName}?`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#007bff",
+          cancelButtonColor: "#6c757d",
+          confirmButtonText: "Yes, download!",
+          cancelButtonText: "Cancel",
         }).then((result) => {
-            if (result.isConfirmed) {
-                // Create a temporary link and trigger download
-                const link = document.createElement('a');
-                link.href = fileUrl;
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                // Show success message after starting download
-                Swal.fire({
-                    title: 'Download Started!',
-                    text: 'Your file download has begun',
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            }
+          if (result.isConfirmed) {
+            // Create a temporary link and trigger download
+            const link = document.createElement("a");
+            link.href = fileUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Show success message after starting download
+            Swal.fire({
+              title: "Download Started!",
+              text: "Your file download has begun",
+              icon: "success",
+              timer: 2000,
+              showConfirmButton: false,
+            });
+          }
         });
-    }
+      }
 
       function handleFileSelect(input) {
         const container = input.parentElement;
@@ -363,8 +462,8 @@
         input.type = "file";
         input.name = "files";
         input.multiple = true;
-        input.accept = ".mp3,.mp4,.jpeg,.png,.gif";
-        input.className = "file-input";
+        input.accept = ".mp3,.mp4,.jpeg,.png,.gif,.jpg,";
+        input.className = "file-input form-control";
         input.onchange = () => handleFileSelect(input);
 
         container.appendChild(input);
@@ -397,17 +496,50 @@
       });
 
       $(".select_all_file").change(function () {
-        if($(this).prop("checked") ){
-            $('.delete_all_btn').removeClass('d-none');
-            
-        }
-        else{
-            $('.delete_all_btn').addClass('d-none');
-
-        }
-        let parentSelect = $(this).prop("checked"); 
+        let parentSelect = $(this).prop("checked");
         $("input:checkbox.select_file").prop("checked", parentSelect);
-    });
+
+        const parentExcluded = $(
+          "input:checkbox.select_file:not(.select_all_file)"
+        );
+
+        if ($(this).prop("checked")) {
+          $(".delete_all_btn").removeClass("d-none");
+
+          parentExcluded.prop("readonly", true);
+          parentExcluded.prop("disabled", true);
+        } else {
+          parentExcluded.prop("readonly", false);
+          parentExcluded.prop("disabled", false);
+          $(".delete_all_btn").addClass("d-none");
+        }
+      });
+
+      function filePreviewToggler(file_url, file_type, file_name) {
+        if (file_type == "mp4") {
+          const content = `<video width="100%" height="auto" controls><source src="${file_url}" type="video/mp4"></video>`;
+          filePreview(content, file_type, file_name);
+        } else if (".jpeg,.png,.gif,.jpg".includes(file_type)) {
+          const content = `<img src="${file_url}" width="100%" style="aspect-ratio:1;object-fit:scale-down;" class="img-responsive" />`;
+          filePreview(content, file_type, file_name);
+        } else if (".mp3".includes(file_type)) {
+          const content = `<audio controls><source src="${file_url}" type="audio/mp3"></audio>`;
+          filePreview(content, file_type, file_name);
+        }
+      }
+
+      $(".btn-stop-media").click(function () {
+        $("audio, video").each(function (e) {
+          this.pause();
+          this.currentTime = 0;
+        });
+      });
+
+      function filePreview(content, filetype, file_name) {
+        $(".file-content").html(content);
+        $("#filePreviewModal").modal("show");
+        $("#modal_title").text(file_name);
+      }
     </script>
   </body>
 </html>

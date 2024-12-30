@@ -49,7 +49,7 @@ def upload_file(request):
                 messages.error(request, f'Error uploading {filename}: {e}')
                 
     files = UploadedFile.objects.all().order_by('-upload_date')
-    return render(request, 'file_upload/upload.html', {'files': files})
+    return redirect('/')
 
 
 @require_POST
@@ -76,3 +76,8 @@ def delete_all_file(request):
     except Exception as e:
         messages.error(request, f'Error deleting file: {str(e)}')
         return redirect('upload_file')
+    
+
+def get_view(request):
+    files = UploadedFile.objects.all().order_by('-upload_date')
+    return render(request, 'file_upload/upload.html', {'files': files})

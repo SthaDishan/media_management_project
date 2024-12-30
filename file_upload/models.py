@@ -21,7 +21,7 @@ class UploadedFile(models.Model):
     file = models.FileField(
         upload_to='uploads/',
         validators=[
-            FileExtensionValidator(allowed_extensions=['mp3', 'mp4', 'jpeg', 'png', 'gif']),
+            FileExtensionValidator(allowed_extensions=['mp3', 'mp4', 'jpeg', 'png', 'gif', 'jpg']),
             validate_file_size
         ]
     )
